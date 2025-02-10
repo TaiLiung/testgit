@@ -1,0 +1,22 @@
+from kivy.app import App
+from kivy.uix.button import Button
+import subprocess
+
+class ScrcpyApp(App):
+    def build(self):
+        return Button(text="Запустить Scrcpy", on_press=self.start_scrcpy)
+
+    def start_scrcpy(self, instance):
+        try:
+            subprocess.run(["scrcpy"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Ошибка: {e}")
+
+if __name__ == "__main__":
+    ScrcpyApp().run()
+
+pip install kivy
+
+pip install buildozer
+buildozer init
+buildozer -v android debug
