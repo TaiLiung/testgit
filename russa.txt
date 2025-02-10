@@ -1,1 +1,63 @@
-sudo apt install -y git zip unzip openjdk-11-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+from kivy.app import App
+from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.core.window import Window
+from kivy.graphics import Color, Ellipse
+from kivy.utils import platform
+import webbrowser
+
+class RoundButton(Button):
+    def __init__(self, **kwargs):
+        super(RoundButton, self).__init__(**kwargs)
+        self.size_hint = (None, None)
+        self.size = (150, 150)
+        self.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+        self.background_normal = ''
+        self.background_color = (0, 0.7, 0.7, 1)
+
+        # Рисуем круглую форму
+        with self.canvas.before:
+            Color(*self.background_color)
+            self.ellipse = Ellipse(pos=self.pos, size=self.size)
+
+        self.bind(pos=self.update_ellipse, size=self.update_ellipse)
+
+    def update_ellipse(self, *args):
+        # Обновляем позицию и размер эллипса при изменении позиции или размера кнопки
+        self.ellipse.pos = self.pos
+        self.ellipse.size = self.size
+
+class MainApp(App):
+    def open_link(self, instance):
+        # Открываем ссылку
+        webbrowser.open('https://www.example.com')
+        
+        # Показываем уведомление
+        self.show_popup("Ссылка открыта", "Вы перешли по ссылке на example.com")
+
+    def show_popup(self, title, message):
+        # Создаем Popup
+        popup_layout = BoxLayout(orientation='vertical', padding=10)
+        popup_label = Label(text=message, size_hint=(1, 0.8))
+        popup_button = Button(text="Закрыть", size_hint=(1, 0.2))
+        popup_layout.add_widget(popup_label)
+        popup_layout.add_widget(popup_button)
+
+        popup = Popup(title=title, content=popup_layout, size_hint=(0.8, 0.4))
+        popup_button.bind(on_press=popup.dismiss)
+        popup.open()
+
+    def build(self):
+        # Устанавливаем размер окна для мобильных устройств
+        if platform == 'android':
+            Window.size = (300, 500)
+
+        # Создаем круглую кнопку
+        button = RoundButton(text="Нажми меня")
+        button.bind(on_press=self.open_link)
+        return button
+
+if __name__ == '__main__':
+    MainApp().run()
